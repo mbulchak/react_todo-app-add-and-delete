@@ -12,9 +12,15 @@ export const ErrorNotification: React.FC<Props> = ({
   setErrorMessage,
 }) => {
   useEffect(() => {
+    let timer: NodeJS.Timeout;
+
     if (errorMessage) {
-      setTimeout(() => setErrorMessage(Errors.DEFAULT), 3000);
+      timer = setTimeout(() => setErrorMessage(Errors.DEFAULT), 3000);
     }
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, [setErrorMessage, errorMessage]);
 
   return (
@@ -28,9 +34,8 @@ export const ErrorNotification: React.FC<Props> = ({
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => setErrorMessage('')}
+        onClick={() => setErrorMessage(Errors.DEFAULT)}
       />
-      {/* show only one message at a time */}
       {errorMessage}
     </div>
   );

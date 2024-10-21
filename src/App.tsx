@@ -6,7 +6,7 @@ import { ErrorNotification } from './components/ErrorNotification';
 
 import { getFilteredTodosByStatus } from './utils/getFilteredTodosByStatus';
 
-import { getTodos } from './api/todos';
+import { deleteTodo, getTodos } from './api/todos';
 
 import { Todo } from './types/Todo';
 import { Errors } from './types/Errors';
@@ -21,6 +21,8 @@ export const App: React.FC = () => {
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
+  const [deleteTodoId, setDeleteTodoId] = useState<number[]>([]);
+
   const filteredTodos = getFilteredTodosByStatus(todos, filter);
 
   useEffect(() => {
@@ -32,14 +34,29 @@ export const App: React.FC = () => {
   }, []);
 
   const countActiveTodos = todos.reduce((accum, todo) => {
-    let countTodos = 0;
-
-    if (!todo.completed) {
-      countTodos += 1;
-    }
-
-    return accum + countTodos;
+    return !todo.completed ? accum + 1 : accum;
   }, 0);
+
+  const handleDeleteTodo = (id: number) => {
+    setIsLoading(true);
+    setDeleteTodoId(currentIds => [...currentIds, id]);
+
+    deleteTodo(id)
+      .then(() => {
+        setDeleteTodoId(currentIds =>
+          currentIds.filter(currId => currId !== id),
+        );
+
+        setTodos(currentTodos =>
+          currentTodos.filter(currentTodo => currentTodo.id !== id),
+        );
+        setIsLoading(false);
+      })
+      .catch(error => {
+        setErrorMessage(Errors.DELETE_TODO);
+        throw error;
+      });
+  };
 
   return (
     <div className="todoapp">
@@ -51,9 +68,9 @@ export const App: React.FC = () => {
           setTempTodo={setTempTodo}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
-          setErrorMessage={setErrorMessage}
           setTodos={setTodos}
-          todos={todos}
+          errorMessage={errorMessage}
+          setErrorMessage={setErrorMessage}
         />
 
         {todos.length > 0 && (
@@ -62,13 +79,19 @@ export const App: React.FC = () => {
               todos={filteredTodos}
               tempTodo={tempTodo}
               isLoading={isLoading}
-              // setErrorMessage={setErrorMessage}
+              setTodos={setTodos}
+              setErrorMessage={setErrorMessage}
+              deleteTodoId={deleteTodoId}
+              setDeleteTodoId={setDeleteTodoId}
+              handleDeleteTodo={handleDeleteTodo}
             />
 
             <Footer
               countActiveTodos={countActiveTodos}
               filter={filter}
               setFilter={setFilter}
+              todos={todos}
+              handleDeleteTodo={handleDeleteTodo}
             />
           </>
         )}

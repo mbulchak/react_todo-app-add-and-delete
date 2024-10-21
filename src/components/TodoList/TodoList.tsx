@@ -5,27 +5,36 @@ type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
   isLoading: boolean;
-  // setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  deleteTodoId: number[];
+  setDeleteTodoId: React.Dispatch<React.SetStateAction<number[]>>;
+  handleDeleteTodo: (id: number) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
   isLoading,
-  // setErrorMessage,
+  setTodos,
+  setErrorMessage,
+  deleteTodoId,
+  setDeleteTodoId,
+  handleDeleteTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {/* This is a completed todo */}
-
       {todos.map(todo => {
         return (
           <TodoItem
             key={todo.id}
             todo={todo}
             isLoading={isLoading}
-            /* tempTodo={tempTodo} */
-            // setErrorMessage={setErrorMessage}
+            setTodos={setTodos}
+            setErrorMessage={setErrorMessage}
+            deleteTodoId={deleteTodoId}
+            setDeleteTodoId={setDeleteTodoId}
+            handleDeleteTodo={handleDeleteTodo}
           />
         );
       })}
@@ -33,84 +42,14 @@ export const TodoList: React.FC<Props> = ({
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
-          isLoading={isLoading} /* setErrorMessage={setErrorMessage} */
+          isLoading={isLoading}
+          setTodos={setTodos}
+          setErrorMessage={setErrorMessage}
+          deleteTodoId={deleteTodoId}
+          setDeleteTodoId={setDeleteTodoId}
+          handleDeleteTodo={handleDeleteTodo}
         />
       )}
-
-      {/* This todo is an active todo */}
-      {/* <div data-cy="Todo" className="todo">
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-          />
-        </label>
-
-        <span data-cy="TodoTitle" className="todo__title">
-          Not Completed Todo
-        </span>
-        <button type="button" className="todo__remove" data-cy="TodoDelete">
-          ×
-        </button>
-
-        <div data-cy="TodoLoader" className="modal overlay">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div> */}
-
-      {/* This todo is being edited */}
-      {/* <div data-cy="Todo" className="todo">
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-          />
-        </label> */}
-
-      {/* This form is shown instead of the title and remove button */}
-      {/* <form>
-          <input
-            data-cy="TodoTitleField"
-            type="text"
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            value="Todo is being edited now"
-          />
-        </form>
-
-        <div data-cy="TodoLoader" className="modal overlay">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div> */}
-
-      {/* This todo is in loadind state */}
-      {/* <div data-cy="Todo" className="todo">
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-          />
-        </label>
-
-        <span data-cy="TodoTitle" className="todo__title">
-          Todo is being saved now
-        </span>
-
-        <button type="button" className="todo__remove" data-cy="TodoDelete">
-          ×
-        </button> */}
-
-      {/* 'is-active' class puts this modal on top of the todo */}
-      {/* <div data-cy="TodoLoader" className="modal overlay is-active">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div> */}
     </section>
   );
 };

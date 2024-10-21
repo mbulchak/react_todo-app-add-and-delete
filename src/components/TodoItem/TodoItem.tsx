@@ -1,25 +1,25 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
-// import { useEffect } from 'react';
 import { Todo } from '../../types/Todo';
 import cn from 'classnames';
-// import { Errors } from '../../types/Errors';
-// import { createTodo } from '../../api/todos';
 
 type Props = {
   todo: Todo;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
   isLoading: boolean;
-  // tempTodo: Todo | null;
-  // setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  deleteTodoId: number[];
+  setDeleteTodoId: React.Dispatch<React.SetStateAction<number[]>>;
+  handleDeleteTodo: (id: number) => void;
 };
 
-export const TodoItem: React.FC<Props> = ({ todo, isLoading }) => {
-  // const idsOfCreatedTodos = [todo.id];
-
-  console.log(todo);
-  // idsOfCreatedTodos.push(todo)
-
+export const TodoItem: React.FC<Props> = ({
+  todo,
+  isLoading,
+  deleteTodoId,
+  handleDeleteTodo,
+}) => {
   return (
     <div
       data-cy="Todo"
@@ -33,6 +33,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isLoading }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
+          disabled={!todo.id}
         />
       </label>
 
@@ -40,21 +41,20 @@ export const TodoItem: React.FC<Props> = ({ todo, isLoading }) => {
         {todo.title}
       </span>
 
-      {/* Remove button appears only on hover */}
-      <button type="button" className="todo__remove" data-cy="TodoDelete">
+      <button
+        type="button"
+        className="todo__remove"
+        data-cy="TodoDelete"
+        onClick={() => handleDeleteTodo(todo.id)}
+      >
         ×
       </button>
-
-      {/* overlay will cover the todo while it is being deleted or updated */}
-      {/* show while class is active and other condition */}
-
-      {/* create an array of id => and if isloading and id === some.id then 'is-active'  */}
 
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          // 'is-activel': !todo.completed,
-          'is-active': isLoading && todo.id === 0,
+          'is-active':
+            (isLoading && todo.id === 0) || deleteTodoId.includes(todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

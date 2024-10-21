@@ -16,39 +16,38 @@ type Props = {
   isLoading: boolean;
   setIsLoading: Dispatch<React.SetStateAction<boolean>>;
   setTodos: Dispatch<SetStateAction<Todo[]>>;
-  todos: Todo[];
-  // setTodos: (newTodo: Omit<Todo, 'id'>) => void;
-
   setErrorMessage: (Error: Errors) => void;
+  errorMessage: string;
 };
 
 export const Header: React.FC<Props> = ({
-  tempTodo,
   setTempTodo,
   isLoading,
   setIsLoading,
   setErrorMessage,
   setTodos,
-  todos,
+  errorMessage,
 }) => {
   const field = useRef<HTMLInputElement>(null);
   const [newTitle, setNewTitle] = useState('');
-  // const [completed, setCompleted] = useState(false);
 
   const handleTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTitle(event.target.value.trimStart());
+    setNewTitle(event.target.value);
   };
 
-  useEffect(() => {
-    field.current?.focus();
-  }, [todos]);
-
   function addTodo({ userId, title, completed }: Omit<Todo, 'id'>) {
-    // here create tempTodo
+    const titleTrim = title.trim();
+
+    if (!titleTrim) {
+      setIsLoading(false);
+      setErrorMessage(Errors.TITLE);
+
+      return;
+    }
 
     const newTodo = {
       userId,
-      title,
+      title: titleTrim,
       completed,
     };
 
@@ -57,35 +56,33 @@ export const Header: React.FC<Props> = ({
       ...newTodo,
     });
 
-    if (!title) {
-      setErrorMessage(Errors.TITLE);
-    }
-
     return todosService
       .createTodo(newTodo)
       .then(defTodo => {
         setTodos(currentTodos => [...currentTodos, defTodo]);
+        setNewTitle('');
       })
       .catch(() => setErrorMessage(Errors.ADD_TODO))
-      .finally(() => setTempTodo(null));
-    //in finally set tempTodo to null
+      .finally(() => {
+        setTempTodo(null);
+        setIsLoading(false);
+      });
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsLoading(true);
 
     addTodo({
       userId: USER_ID,
       title: newTitle,
       completed: false,
     });
-
-    setIsLoading(true);
-
-    setNewTitle('');
   };
 
-  setIsLoading(false);
+  useEffect(() => {
+    field.current?.focus();
+  }, [isLoading, errorMessage]);
 
   return (
     <header className="todoapp__header">
@@ -96,7 +93,6 @@ export const Header: React.FC<Props> = ({
         data-cy="ToggleAllButton"
       />
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           ref={field}
@@ -106,7 +102,6 @@ export const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           onChange={handleTitle}
-          // disabled={} when the data is loading
           disabled={isLoading}
         />
       </form>
